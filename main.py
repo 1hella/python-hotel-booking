@@ -1,4 +1,5 @@
 import pandas as pd
+from abc import ABC, abstractmethod
 
 df = pd.read_csv("hotels.csv", dtype={"id": str})
 df_cards = pd.read_csv("cards.csv", dtype=str).to_dict(orient="records")
@@ -20,13 +21,28 @@ class Hotel:
         availability = df.loc[df['id'] == self.hotel_id, 'available'].squeeze()
         return availability == 'yes'
 
+    @classmethod
+    def get_hotel_count(cls, data):
+        print(cls)
+        return len(data)
+
+    def __eq__(self, other):
+        return self.hotel_id == other.hotel_id;
+
 
 class SpaHotel(Hotel):
     def book_spa_package(self):
         pass
 
 
-class ReservationTicket:
+class Ticket(ABC):
+
+    @abstractmethod
+    def generate(self):
+        pass
+
+
+class ReservationTicket(Ticket):
     def __init__(self, customer_name, hotel):
         self.customer_name = customer_name
         self.hotel = hotel
@@ -49,9 +65,19 @@ class SpaReservationTicket:
         return f"""
         Thank you for your SPA reservation!
         Here are your SPA booking data:
-        Name: {self.customer_name}
+        Name: {self.the_customer_name}
         Hotel Name: {self.hotel.name}
         """
+
+    @property
+    def the_customer_name(self):
+        name = self.customer_name.strip()
+        name = name.title()
+        return name
+
+    @staticmethod
+    def convert(amount):
+        return amount * 1.2
 
 
 class CreditCard:
